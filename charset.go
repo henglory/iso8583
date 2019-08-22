@@ -1,4 +1,4 @@
-package charset
+package iso8583
 
 import (
 	"bytes"
@@ -29,12 +29,12 @@ func encodeUtf8(encodeTable map[string]byte, utf []byte) []byte {
 }
 
 //DecodeUTF8 is converting byte with codepage to byte in utf8
-func DecodeUTF8(codePage string, b []byte) []byte {
+func decodeUTF8(codePage string, b []byte) []byte {
 	return defaultDecodeUtf8(codePage, b)
 }
 
 //EncodeUTF8 is converting byte in utf8 to byte in codepage
-func EncodeUTF8(codePage string, b []byte) []byte {
+func encodeUTF8(codePage string, b []byte) []byte {
 	return defaultEncodeUtf8(codePage, b)
 }
 

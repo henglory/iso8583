@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/henglory/iso8583/charset"
 )
 
 func ptrInterfaceInnerEncoder(v reflect.Value, tg innerTag) ([]byte, error) {
@@ -18,7 +16,7 @@ func ptrInterfaceInnerEncoder(v reflect.Value, tg innerTag) ([]byte, error) {
 func stringInnerEncoder(v reflect.Value, t innerTag) ([]byte, error) {
 	vb := []byte(v.String())
 	if cp := t.codePage.value(); cp != "" {
-		vb = charset.EncodeUTF8(cp, vb)
+		vb = encodeUTF8(cp, vb)
 	}
 	if len(vb) < t.length {
 		vb = append(vb, []byte(strings.Repeat(" ", t.length-len(vb)))...)

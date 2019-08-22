@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
-
-	"github.com/henglory/iso8583/charset"
 )
 
 type decodeEncoderFn func(data []byte, length int) ([]byte, []byte, error)
@@ -102,7 +100,7 @@ func alphaDecoder(v reflect.Value, t tag, data []byte) ([]byte, error) {
 	switch v.Type().Kind() {
 	case reflect.String:
 		if cp := t.codePage.value(); cp != "" {
-			val = charset.DecodeUTF8(cp, val)
+			val = decodeUTF8(cp, val)
 		}
 		v.SetString(string(val))
 	default:
@@ -171,7 +169,7 @@ func llvarDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err er
 		v.SetBytes(val)
 	case reflect.String:
 		if cp := t.codePage.value(); cp != "" {
-			val = charset.DecodeUTF8(cp, val)
+			val = decodeUTF8(cp, val)
 		}
 		v.SetString(string(val))
 	case reflect.Int, reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8:
@@ -276,7 +274,7 @@ func unknownInnerDecoder(v reflect.Value, data []byte, cp codepageType) error {
 
 func stringInnerDecoder(v reflect.Value, data []byte, cp codepageType) error {
 	if c := cp.value(); c != "" {
-		data = charset.DecodeUTF8(c, data)
+		data = decodeUTF8(c, data)
 	}
 	data = bytes.TrimSpace(data)
 	v.SetString(string(data))

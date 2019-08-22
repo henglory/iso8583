@@ -3,8 +3,6 @@ package iso8583
 import (
 	"fmt"
 	"strings"
-
-	"github.com/henglory/iso8583/charset"
 )
 
 type parseValueFn func(val string) ([]byte, error)
@@ -46,7 +44,7 @@ func getAlphaParser(t tag) parseValueFn {
 		}
 		vb := []byte(val)
 		if cp := t.codePage.value(); cp != "" {
-			vb = charset.EncodeUTF8(cp, vb)
+			vb = encodeUTF8(cp, vb)
 		}
 		if len(vb) > t.length {
 			return nil, fmt.Errorf("In alpha, length (%d) is larger than defined length (%d)", len(vb), t.length)
@@ -80,7 +78,7 @@ func getLlvarValueParser(t tag) parseValueFn {
 	return func(val string) ([]byte, error) {
 		vb := []byte(val)
 		if cp := t.codePage.value(); cp != "" {
-			vb = charset.EncodeUTF8(cp, vb)
+			vb = encodeUTF8(cp, vb)
 		}
 		return getLlvarBinaryParser(t)(vb)
 	}
@@ -161,7 +159,7 @@ func getLllvarValueParser(t tag) parseValueFn {
 	return func(val string) ([]byte, error) {
 		vb := []byte(val)
 		if cp := t.codePage.value(); cp != "" {
-			vb = charset.EncodeUTF8(cp, vb)
+			vb = encodeUTF8(cp, vb)
 		}
 		return getLllvarBinaryParser(t)(vb)
 	}
