@@ -34,10 +34,9 @@ func initDecoder(v reflect.Value, raw []byte) error {
 	}
 	pipeline = append([]decoderFn{mtiDecoder, bitmapDecoder}, pipeline...)
 	var bm []byte
-	data := raw
 	var err error
 	for _, exec := range pipeline {
-		data, bm, err = exec(bm, data)
+		raw, bm, err = exec(bm, raw)
 		if err != nil {
 			return err
 		}

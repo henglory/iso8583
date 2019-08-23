@@ -196,16 +196,214 @@ func llvarDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err er
 	return leftBytes, nil
 }
 
-func llnumDecoder(v reflect.Value, t tag, data []byte) ([]byte, error) {
-	return nil, nil
+func llnumDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("critical error in llnum")
+			return
+		}
+	}()
+	var contentLen int
+	switch t.lenEncode {
+	case ascii:
+		leftBytes = data[2:]
+		contentLen, err = strconv.Atoi(string(data[:2]))
+		if err != nil {
+			err = fmt.Errorf("Parsing length ascii failed: %s", hex.EncodeToString(data))
+			return
+		}
+	case rbcd:
+		fallthrough
+	case bcd:
+		leftBytes = data[1:]
+		contentLen, err = strconv.Atoi(string(bcdr2Ascii(data[:1], 2)))
+		if err != nil {
+			err = fmt.Errorf("Parsing length bcd failed: %s", hex.EncodeToString(data))
+			return
+		}
+	default:
+		err = fmt.Errorf("In llnum, length encoder is invalid")
+		return
+	}
+	val := leftBytes[:contentLen]
+	leftBytes = leftBytes[contentLen:]
+
+	switch t.encode {
+	case ascii:
+	case rbcd:
+		fallthrough
+	case bcd:
+		bcdLen := (contentLen + 1) / 2
+		val = bcdl2Ascii(val[:bcdLen], contentLen)
+	default:
+		err = fmt.Errorf("In llnum, encode not support")
+	}
+
+	switch v.Type().Kind() {
+	case reflect.String:
+		v.SetString(string(val))
+	case reflect.Int, reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8:
+		i, err := strconv.Atoi(string(val))
+		if err != nil {
+			return nil, err
+		}
+		v.SetInt(int64(i))
+	case reflect.Float64:
+		f, err := strconv.ParseFloat(string(val), 64)
+		if err != nil {
+			return nil, err
+		}
+		v.SetFloat(f)
+	case reflect.Float32:
+		f, err := strconv.ParseFloat(string(val), 32)
+		if err != nil {
+			return nil, err
+		}
+		v.SetFloat(f)
+	default:
+		return nil, fmt.Errorf("Not support for llnum type")
+	}
+
+	return leftBytes, nil
 }
 
-func lllvarDecoder(v reflect.Value, t tag, data []byte) ([]byte, error) {
-	return nil, nil
+func lllvarDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("critical error in lllvar")
+			return
+		}
+	}()
+	var contentLen int
+	switch t.lenEncode {
+	case ascii:
+		leftBytes = data[3:]
+		contentLen, err = strconv.Atoi(string(data[:3]))
+		if err != nil {
+			err = fmt.Errorf("Parsing length ascii failed: %s", hex.EncodeToString(data))
+			return
+		}
+	case rbcd:
+		fallthrough
+	case bcd:
+		leftBytes = data[2:]
+		contentLen, err = strconv.Atoi(string(bcdr2Ascii(data[:2], 3)))
+		if err != nil {
+			err = fmt.Errorf("Parsing length bcd failed: %s", hex.EncodeToString(data))
+			return
+		}
+	default:
+		err = fmt.Errorf("In lllvar, length encoder is invalid")
+		return
+	}
+	val := leftBytes[:contentLen]
+	leftBytes = leftBytes[contentLen:]
+	switch v.Type().Kind() {
+	case reflect.Struct:
+		err = structDecode(v, val)
+		if err != nil {
+			return
+		}
+	case reflect.Slice:
+		v.SetBytes(val)
+	case reflect.String:
+		if cp := t.codePage.value(); cp != "" {
+			val = decodeUTF8(cp, val)
+		}
+		v.SetString(string(val))
+	case reflect.Int, reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8:
+		i, err := strconv.Atoi(string(val))
+		if err != nil {
+			return nil, err
+		}
+		v.SetInt(int64(i))
+	case reflect.Float64:
+		f, err := strconv.ParseFloat(string(val), 64)
+		if err != nil {
+			return nil, err
+		}
+		v.SetFloat(f)
+	case reflect.Float32:
+		f, err := strconv.ParseFloat(string(val), 32)
+		if err != nil {
+			return nil, err
+		}
+		v.SetFloat(f)
+	default:
+		return nil, fmt.Errorf("Not support for lllvar type")
+	}
+	return leftBytes, nil
 }
 
-func lllnumDecoder(v reflect.Value, t tag, data []byte) ([]byte, error) {
-	return nil, nil
+func lllnumDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("critical error in lllnum")
+			return
+		}
+	}()
+	var contentLen int
+	switch t.lenEncode {
+	case ascii:
+		leftBytes = data[3:]
+		contentLen, err = strconv.Atoi(string(data[:3]))
+		if err != nil {
+			err = fmt.Errorf("Parsing length ascii failed: %s", hex.EncodeToString(data))
+			return
+		}
+	case rbcd:
+		fallthrough
+	case bcd:
+		leftBytes = data[2:]
+		contentLen, err = strconv.Atoi(string(bcdr2Ascii(data[:2], 3)))
+		if err != nil {
+			err = fmt.Errorf("Parsing length bcd failed: %s", hex.EncodeToString(data))
+			return
+		}
+	default:
+		err = fmt.Errorf("In lllnum, length encoder is invalid")
+		return
+	}
+	val := leftBytes[:contentLen]
+	leftBytes = leftBytes[contentLen:]
+
+	switch t.encode {
+	case ascii:
+	case rbcd:
+		fallthrough
+	case bcd:
+		bcdLen := (contentLen + 1) / 2
+		val = bcdl2Ascii(val[:bcdLen], contentLen)
+	default:
+		err = fmt.Errorf("In lllnum, encode not support")
+	}
+
+	switch v.Type().Kind() {
+	case reflect.String:
+		v.SetString(string(val))
+	case reflect.Int, reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8:
+		i, err := strconv.Atoi(string(val))
+		if err != nil {
+			return nil, err
+		}
+		v.SetInt(int64(i))
+	case reflect.Float64:
+		f, err := strconv.ParseFloat(string(val), 64)
+		if err != nil {
+			return nil, err
+		}
+		v.SetFloat(f)
+	case reflect.Float32:
+		f, err := strconv.ParseFloat(string(val), 32)
+		if err != nil {
+			return nil, err
+		}
+		v.SetFloat(f)
+	default:
+		return nil, fmt.Errorf("Not support for lllnum type")
+	}
+
+	return leftBytes, nil
 }
 
 func structDecode(v reflect.Value, data []byte) (err error) {

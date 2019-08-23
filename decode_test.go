@@ -5,8 +5,19 @@ import (
 	"testing"
 )
 
+type TestIsoDecode struct {
+	Mti          string `encode:"bcd"`
+	SecondBitmap bool
+	TransmissDt  string `field:"7" length:"10" type:"numeric"`
+	TraceNum     string `field:"11" length:"6" type:"numeric"`
+	SendingID    string `field:"32" type:"llvar"`
+	Rrn          string `field:"37" length:"12" type:"numeric"`
+	T            T48    `field:"48" type:"lllvar" encode:"bcd,ascii"`
+	NetworkCode  string `field:"70" length:"3" type:"numeric"`
+}
+
 func TestDecode(t *testing.T) {
-	init := TestIso{
+	init := TestIsoDecode{
 		Mti:          "0800",
 		SecondBitmap: true,
 		TransmissDt:  "123123",
@@ -24,8 +35,8 @@ func TestDecode(t *testing.T) {
 	if err != nil {
 		t.Errorf("marshal error %+v", err)
 	}
-	iso := TestIso{}
-	//need to cut first 11 byte for dataLen 2 bytes & ISO header 9 bytes (ISO00(len2))
+	iso := TestIsoDecode{}
+
 	err = Unmarshal(b, &iso)
 	if err != nil {
 		t.Errorf("unmarshal error %+v", err)
