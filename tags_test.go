@@ -13,6 +13,7 @@ type fakeTagStruct struct {
 func TestParseTag(t *testing.T) {
 	s := fakeTagStruct{
 		Mti: "0800",
+		T1:  "123123",
 	}
 	v := reflect.ValueOf(s)
 	for i := 0; i < v.Type().NumField(); i++ {

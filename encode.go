@@ -1,72 +1,37 @@
 package iso8583
 
 import (
-	"bufio"
-	"bytes"
 	"errors"
 	"fmt"
-	"io"
 	"reflect"
 	"strconv"
 )
 
-type encoder struct {
-	w *bufio.Writer
-}
-
 //Marshal is used for convert iso8583 struct to byte array
 func Marshal(v interface{}) ([]byte, error) {
-	buff := bytes.NewBuffer(nil)
-	err := newEncoder(buff).encode(v)
-	if err != nil {
-		return nil, err
-	}
-	msg := buff.Bytes()
-	// ADD header to ISO Message
-	// header := []byte(fmt.Sprintf("ISO00%04d", len(msg)))
-	// msg = append(header, msg...)
-	// dataLen, err := hex.DecodeString(fmt.Sprintf("%04x", len(msg)))
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// msg = append(dataLen, msg...)
-	return msg, nil
+	return encode(v)
+
 }
 
-func newEncoder(w io.Writer) *encoder {
-	return &encoder{
-		bufio.NewWriter(w),
-	}
-}
-
-func (e *encoder) encode(v interface{}) error {
+func encode(v interface{}) ([]byte, error) {
 	if v == nil {
-		return nil
+		return nil, nil
 	}
 	val := reflect.ValueOf(v)
 	for val.Kind() == reflect.Ptr || val.Kind() == reflect.Interface {
 		val = val.Elem()
 	}
 	if val.Kind() == reflect.Slice {
-		return fmt.Errorf("Not support for slice")
+		return nil, fmt.Errorf("Not support for slice")
 	}
-	err := e.write(reflect.ValueOf(v))
-	if err != nil {
-		return err
-	}
-	return e.w.Flush()
+	return write(reflect.ValueOf(v))
 }
 
-func (e *encoder) write(v reflect.Value) error {
+func write(v reflect.Value) ([]byte, error) {
 	if v.Type().Kind() != reflect.Struct {
-		return fmt.Errorf("Not support for not struct type %v", v)
+		return nil, fmt.Errorf("Not support for not struct type %v", v)
 	}
-	b, err := initEncoder(v)
-	if err != nil {
-		return err
-	}
-	_, err = e.w.Write(b)
-	return err
+	return initEncoder(v)
 }
 
 type valueEncoder func(v reflect.Value, t tag) ([]byte, error)
