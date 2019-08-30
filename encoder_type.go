@@ -188,15 +188,24 @@ func sliceEncoder(v reflect.Value, t tag) (b []byte, err error) {
 }
 
 func stringEncoder(v reflect.Value, t tag) ([]byte, error) {
+	if v.String() == "" {
+		return []byte{}, nil
+	}
 	return parseValue(v.String(), t)
 }
 
 func intEncoder(v reflect.Value, t tag) ([]byte, error) {
+	if v.Int() == 0 {
+		return []byte{}, nil
+	}
 	return parseValue(strconv.Itoa(int(v.Int())), t)
 }
 
 func floatEncoder(perc, bitSize int) valueEncoder {
 	return func(v reflect.Value, t tag) ([]byte, error) {
+		if v.Float() == 0 {
+			return []byte{}, nil
+		}
 		return parseValue(strconv.FormatFloat(v.Float(), 'f', perc, bitSize), t)
 	}
 }
