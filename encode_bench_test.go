@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func BenchmarkMarshal_100000(b *testing.B) {
+func BenchmarkMarshal(b *testing.B) {
 	init := TestIso{
 		Mti:          "0800",
 		SecondBitmap: false,

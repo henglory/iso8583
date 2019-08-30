@@ -111,11 +111,9 @@ func getValueDecoder(v reflect.Value, t tag) decoderFn {
 			bitmap = bm
 			return
 		}
-		byteIndex := t.field / 8
-		bitIndex := t.field % 8
-		step := uint(7 - bitIndex)
-
-		if (bm[byteIndex] & (0x01 << step)) != 0 {
+		byteIndex := (t.field - 1) / 8
+		bitIndex := (t.field - 1) % 8
+		if (bm[byteIndex] & (0x80 >> uint(bitIndex))) != (0x80 >> uint(bitIndex)) {
 			//offbit
 			leftByte = data
 			bitmap = bm
