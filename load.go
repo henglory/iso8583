@@ -58,7 +58,6 @@ func numericDecoder(v reflect.Value, t tag, data []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	val = bytes.TrimLeft(val, "0")
 	switch v.Type().Kind() {
 	case reflect.String:
 		v.SetString(string(val))
