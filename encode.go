@@ -15,7 +15,7 @@ func Marshal(v interface{}) ([]byte, error) {
 
 func encode(v interface{}) ([]byte, error) {
 	if v == nil {
-		return nil, nil
+		return nil, fmt.Errorf("Not suppport null pointer")
 	}
 	val := reflect.ValueOf(v)
 	for val.Kind() == reflect.Ptr || val.Kind() == reflect.Interface {
