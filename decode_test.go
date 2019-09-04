@@ -20,7 +20,7 @@ func TestDecode(t *testing.T) {
 	init := TestIsoDecode{
 		Mti:          "0800",
 		SecondBitmap: true,
-		TransmissDt:  "123123",
+		TransmissDt:  "0000123123",
 		TraceNum:     "123456",
 		SendingID:    "004",
 		T: T48{
@@ -28,8 +28,8 @@ func TestDecode(t *testing.T) {
 			T2: "123",
 			T3: 1,
 		},
-		Rrn:         "908232123",
-		NetworkCode: "80",
+		Rrn:         "000908232123",
+		NetworkCode: "080",
 	}
 	b, err := Marshal(init)
 	if err != nil {
