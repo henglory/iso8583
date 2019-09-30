@@ -6,6 +6,7 @@ import (
 )
 
 func BenchmarkMarshal(b *testing.B) {
+
 	init := TestIso{
 		Mti:          "0800",
 		SecondBitmap: false,
@@ -31,6 +32,7 @@ func BenchmarkMarshal(b *testing.B) {
 }
 
 func BenchmarkInitEncode(b *testing.B) {
+
 	init := TestIso{
 		Mti:          "0800",
 		SecondBitmap: false,

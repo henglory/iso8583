@@ -52,7 +52,7 @@ func initEncoder(v reflect.Value) ([]byte, error) {
 			}
 			continue
 		}
-		b, err := primaryEncoder(f.Type)(v.Field(i), t)
+		b, err := primaryEncoder(f.Type, t)(v.Field(i), t)
 		if err != nil {
 			return nil, err
 		}

@@ -36,7 +36,7 @@ func write(v reflect.Value) ([]byte, error) {
 
 type valueEncoder func(v reflect.Value, t tag) ([]byte, error)
 
-func primaryEncoder(t reflect.Type) valueEncoder {
+func primaryEncoder(t reflect.Type, tg tag) valueEncoder {
 	if t == nil {
 		return nilEncoder
 	}
@@ -44,6 +44,9 @@ func primaryEncoder(t reflect.Type) valueEncoder {
 	case reflect.Slice:
 		return sliceEncoder
 	case reflect.Struct:
+		if tg.bitmapSize > 0 {
+			return structBitmapEncoder
+		}
 		return structEncoder
 	case reflect.String:
 		return stringEncoder

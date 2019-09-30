@@ -44,6 +44,7 @@ type tag struct {
 	encode         encodeBase
 	fieldType      iso8583FieldType
 	codePage       codepageType
+	bitmapSize     int
 }
 
 type innerTag struct {
@@ -68,6 +69,9 @@ func parseTag(f reflect.StructField) (t tag, err error) {
 	}
 	if t.length, err = strconv.Atoi(f.Tag.Get("length")); err != nil {
 		t.length = -1
+	}
+	if t.bitmapSize, err = strconv.Atoi(f.Tag.Get("bitmapsize")); err != nil {
+		t.bitmapSize = 0
 	}
 	if raw := f.Tag.Get("encode"); raw != "" {
 		enc := strings.Split(raw, ",")

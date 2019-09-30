@@ -6,6 +6,7 @@ import (
 )
 
 func BenchmarkTags(b *testing.B) {
+
 	s := TestIso{
 		Mti:          "0800",
 		SecondBitmap: false,

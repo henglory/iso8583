@@ -160,9 +160,16 @@ func llvarDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err er
 	leftBytes = leftBytes[contentLen:]
 	switch v.Type().Kind() {
 	case reflect.Struct:
-		err = structDecode(v, val)
-		if err != nil {
-			return
+		if t.bitmapSize > 0 {
+			err = bitmapStructDecode(v, t, val)
+			if err != nil {
+				return
+			}
+		} else {
+			err = structDecode(v, val)
+			if err != nil {
+				return
+			}
 		}
 	case reflect.Slice:
 		v.SetBytes(val)
@@ -299,9 +306,16 @@ func lllvarDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err e
 	leftBytes = leftBytes[contentLen:]
 	switch v.Type().Kind() {
 	case reflect.Struct:
-		err = structDecode(v, val)
-		if err != nil {
-			return
+		if t.bitmapSize > 0 {
+			err = bitmapStructDecode(v, t, val)
+			if err != nil {
+				return
+			}
+		} else {
+			err = structDecode(v, val)
+			if err != nil {
+				return
+			}
 		}
 	case reflect.Slice:
 		v.SetBytes(val)
