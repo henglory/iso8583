@@ -444,26 +444,25 @@ func lllnumDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err e
 }
 
 func ptrDecode(v reflect.Value, data []byte) (err error) {
-	if v.IsNil() {
-		return
-	}
 	defer func() {
 		if r := recover(); r != nil {
+			fmt.Println(r)
 			err = fmt.Errorf("critical error, struct decode")
 		}
 	}()
-	fmt.Println("v ", v.Type().NumField())
-	v = reflect.Indirect(v)
-	fmt.Println("v ", v.Type().NumField())
+	t := v.Type().Elem()
+	if v.IsNil() {
+		v.Set(reflect.New(t))
+	}
 	var idx int
-	for i := 0; i < v.Type().NumField(); i++ {
-		f := v.Type().Field(i)
+	for i := 0; i < t.NumField(); i++ {
+		f := t.Field(i)
 		t, err := parseInnerTag(f.Tag)
 		if err != nil {
 			err = nil
 			continue
 		}
-		err = newValueInnerDecoder(f.Type)(v.Field(i), data[idx:idx+t.length], t.codePage)
+		err = newValueInnerDecoder(f.Type)(reflect.Indirect(v).Field(i), data[idx:idx+t.length], t.codePage)
 		if err != nil {
 			break
 		}

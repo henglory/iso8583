@@ -15,11 +15,16 @@ func bitmapPtrDecode(v reflect.Value, t tag, data []byte) (err error) {
 			err = fmt.Errorf("critical error, bitmap struct decode")
 		}
 	}()
-	v = reflect.Indirect(v)
+
+	typ := v.Type().Elem()
+	if v.IsNil() {
+		v.Set(reflect.New(typ))
+	}
+
 	idx := t.bitmapSize
 	bitmap := data[:t.bitmapSize]
-	for i := 0; i < v.Type().NumField(); i++ {
-		f := v.Type().Field(i)
+	for i := 0; i < typ.NumField(); i++ {
+		f := typ.Field(i)
 		innerT, err := parseInnerTag(f.Tag)
 		if err != nil {
 			err = nil
@@ -32,7 +37,7 @@ func bitmapPtrDecode(v reflect.Value, t tag, data []byte) (err error) {
 		if !isOn {
 			continue
 		}
-		err = newValueInnerDecoder(f.Type)(v.Field(i), data[idx:idx+innerT.length], innerT.codePage)
+		err = newValueInnerDecoder(f.Type)(reflect.Indirect(v).Field(i), data[idx:idx+innerT.length], innerT.codePage)
 		if err != nil {
 			break
 		}
