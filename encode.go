@@ -40,15 +40,13 @@ func primaryEncoder(t reflect.Type, tg tag) valueEncoder {
 	if t == nil {
 		return nilEncoder
 	}
-	for t.Kind() == reflect.Ptr || t.Kind() == reflect.Interface {
-		t = t.Elem()
-	}
-	if t == nil {
-		return nilEncoder
-	}
 
 	switch t.Kind() {
-
+	case reflect.Ptr:
+		if tg.bitmapSize > 0 {
+			return ptrBitmapEncoder
+		}
+		return ptrEncoder
 	case reflect.Slice:
 		return sliceEncoder
 	case reflect.Struct:

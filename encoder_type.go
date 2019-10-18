@@ -109,7 +109,15 @@ func (s innerDataSort) Len() int           { return len(s) }
 func (s innerDataSort) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 func (s innerDataSort) Less(i, j int) bool { return s[i].field < s[j].field }
 
+func ptrEncoder(v reflect.Value, t tag) ([]byte, error) {
+	if v.IsNil() {
+		return nil, nil
+	}
+	return structEncoder(v, t)
+}
+
 func structEncoder(v reflect.Value, t tag) ([]byte, error) {
+
 	var dataArr []innerData
 	for i := 0; i < v.Type().NumField(); i++ {
 		f := v.Type().Field(i)

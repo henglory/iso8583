@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+func ptrBitmapEncoder(v reflect.Value, t tag) ([]byte, error) {
+	if v.IsNil() {
+		return nil, nil
+	}
+	return structBitmapEncoder(v, t)
+}
+
 func structBitmapEncoder(v reflect.Value, t tag) ([]byte, error) {
 
 	var dataArr []innerData
