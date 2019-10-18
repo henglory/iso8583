@@ -452,6 +452,7 @@ func ptrDecode(v reflect.Value, data []byte) (err error) {
 			err = fmt.Errorf("critical error, struct decode")
 		}
 	}()
+	v = reflect.Indirect(v)
 	var idx int
 	for i := 0; i < v.Type().NumField(); i++ {
 		f := v.Type().Field(i)
