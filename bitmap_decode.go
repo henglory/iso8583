@@ -7,15 +7,12 @@ import (
 )
 
 func bitmapPtrDecode(v reflect.Value, t tag, data []byte) (err error) {
-	if v.IsNil() {
-		return
-	}
+
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("critical error, bitmap struct decode")
 		}
 	}()
-
 	typ := v.Type().Elem()
 	if v.IsNil() {
 		v.Set(reflect.New(typ))
