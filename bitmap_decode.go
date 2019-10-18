@@ -6,6 +6,16 @@ import (
 	"reflect"
 )
 
+func bitmapPtrDecode(v reflect.Value, t tag, data []byte) error {
+	if v.IsNil() {
+		return nil
+	}
+	for v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	return bitmapStructDecode(v, t, data)
+}
+
 func bitmapStructDecode(v reflect.Value, t tag, data []byte) (err error) {
 	defer func() {
 		if r := recover(); r != nil {

@@ -159,6 +159,18 @@ func llvarDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err er
 	val := leftBytes[:contentLen]
 	leftBytes = leftBytes[contentLen:]
 	switch v.Type().Kind() {
+	case reflect.Ptr:
+		if t.bitmapSize > 0 {
+			err = bitmapPtrDecode(v, t, val)
+			if err != nil {
+				return
+			}
+		} else {
+			err = ptrDecode(v, val)
+			if err != nil {
+				return
+			}
+		}
 	case reflect.Struct:
 		if t.bitmapSize > 0 {
 			err = bitmapStructDecode(v, t, val)
@@ -305,6 +317,18 @@ func lllvarDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err e
 	val := leftBytes[:contentLen]
 	leftBytes = leftBytes[contentLen:]
 	switch v.Type().Kind() {
+	case reflect.Ptr:
+		if t.bitmapSize > 0 {
+			err = bitmapPtrDecode(v, t, val)
+			if err != nil {
+				return
+			}
+		} else {
+			err = ptrDecode(v, val)
+			if err != nil {
+				return
+			}
+		}
 	case reflect.Struct:
 		if t.bitmapSize > 0 {
 			err = bitmapStructDecode(v, t, val)
@@ -417,6 +441,16 @@ func lllnumDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err e
 	}
 
 	return leftBytes, nil
+}
+
+func ptrDecode(v reflect.Value, data []byte) error {
+	if v.IsNil() {
+		return nil
+	}
+	for v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	return structDecode(v, data)
 }
 
 func structDecode(v reflect.Value, data []byte) (err error) {
