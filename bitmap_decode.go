@@ -6,14 +6,38 @@ import (
 	"reflect"
 )
 
-func bitmapPtrDecode(v reflect.Value, t tag, data []byte) error {
+func bitmapPtrDecode(v reflect.Value, t tag, data []byte) (err error) {
 	if v.IsNil() {
-		return nil
+		return
 	}
-	for v.Kind() == reflect.Ptr {
-		v = v.Elem()
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("critical error, bitmap struct decode")
+		}
+	}()
+	idx := t.bitmapSize
+	bitmap := data[:t.bitmapSize]
+	for i := 0; i < v.Type().NumField(); i++ {
+		f := v.Type().Field(i)
+		innerT, err := parseInnerTag(f.Tag)
+		if err != nil {
+			err = nil
+			continue
+		}
+		isOn, err := bitIsOn(bitmap, innerT.field)
+		if err != nil {
+			break
+		}
+		if !isOn {
+			continue
+		}
+		err = newValueInnerDecoder(f.Type)(v.Field(i), data[idx:idx+innerT.length], innerT.codePage)
+		if err != nil {
+			break
+		}
+		idx = idx + innerT.length
 	}
-	return bitmapStructDecode(v, t, data)
+	return
 }
 
 func bitmapStructDecode(v reflect.Value, t tag, data []byte) (err error) {

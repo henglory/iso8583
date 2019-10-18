@@ -443,14 +443,30 @@ func lllnumDecoder(v reflect.Value, t tag, data []byte) (leftBytes []byte, err e
 	return leftBytes, nil
 }
 
-func ptrDecode(v reflect.Value, data []byte) error {
+func ptrDecode(v reflect.Value, data []byte) (err error) {
 	if v.IsNil() {
-		return nil
+		return
 	}
-	for v.Kind() == reflect.Ptr {
-		v = v.Elem()
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("critical error, struct decode")
+		}
+	}()
+	var idx int
+	for i := 0; i < v.Type().NumField(); i++ {
+		f := v.Type().Field(i)
+		t, err := parseInnerTag(f.Tag)
+		if err != nil {
+			err = nil
+			continue
+		}
+		err = newValueInnerDecoder(f.Type)(v.Field(i), data[idx:idx+t.length], t.codePage)
+		if err != nil {
+			break
+		}
+		idx = idx + t.length
 	}
-	return structDecode(v, data)
+	return
 }
 
 func structDecode(v reflect.Value, data []byte) (err error) {
