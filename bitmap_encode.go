@@ -11,6 +11,9 @@ func ptrBitmapEncoder(v reflect.Value, t tag) ([]byte, error) {
 	if v.IsNil() {
 		return nil, nil
 	}
+	for v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
 	return structBitmapEncoder(v, t)
 }
 
