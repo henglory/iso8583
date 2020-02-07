@@ -121,6 +121,7 @@ func aggregateVal(mp map[int]([]byte), mti []byte) ([]byte, error) {
 		bitIdx := (idx - 1) % 8
 		step := uint(7 - bitIdx)
 		bitmap[byteIdx] |= (0x01 << step)
+		data = append(data, m...)
 	}
 
 	// for byteIdx := 0; byteIdx < byteNum; byteIdx++ {
