@@ -45,13 +45,13 @@ func initEncoder(v reflect.Value) ([]byte, error) {
 			}
 			continue
 		}
-		// if t.isSecondBitmap {
-		// 	secondBitmap, err = encodeSecondBitmap(v.Field(i))
-		// 	if err != nil {
-		// 		return nil, err
-		// 	}
-		// 	continue
-		// }
+		if t.isSecondBitmap {
+			// secondBitmap, err = encodeSecondBitmap(v.Field(i))
+			// if err != nil {
+			// 	return nil, err
+			// }
+			continue
+		}
 		b, err := primaryEncoder(f.Type, t)(v.Field(i), t)
 		if err != nil {
 			return nil, err
@@ -104,7 +104,15 @@ func aggregateVal(mp map[int]([]byte), mti []byte) ([]byte, error) {
 	bitmap := make([]byte, 8)
 	var data []byte
 	var hasSecondBitmap = false
-	for idx, m := range mp {
+
+	var keys []int
+	for k := range mp {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	for _, idx := range keys {
+		m := mp[idx]
 		if len(m) <= 0 {
 			continue
 		}
@@ -117,10 +125,11 @@ func aggregateVal(mp map[int]([]byte), mti []byte) ([]byte, error) {
 			bitmap[0] |= (0x80)
 			hasSecondBitmap = true
 		}
-		byteIdx := idx / 8
+		byteIdx := (idx - 1) / 8
 		bitIdx := (idx - 1) % 8
 		step := uint(7 - bitIdx)
 		bitmap[byteIdx] |= (0x01 << step)
+		fmt.Println("aggre", idx, step, byteIdx)
 		data = append(data, m...)
 	}
 

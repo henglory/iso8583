@@ -53,14 +53,6 @@ func TestEncode(t *testing.T) {
 	if err != nil {
 		t.Errorf("marshal error %+v", err)
 	}
-	if hex.EncodeToString(b) != "0800022000010801000030303030313233313233313233343536303330303430303039303832333231323324b7b4cacdbab7b4cacdba3132332020303030303030303031" {
-		t.Errorf("Marshal data error %s\n", hex.EncodeToString(b))
-	}
-	init.SecondBitmap = true
-	b, err = Marshal(init)
-	if err != nil {
-		t.Errorf("marshal error %+v", err)
-	}
 	if hex.EncodeToString(b) != "08008220000108010000040000000000000030303030313233313233313233343536303330303430303039303832333231323324b7b4cacdbab7b4cacdba3132332020303030303030303031303830" {
 		t.Errorf("Marshal data error %s\n", hex.EncodeToString(b))
 	}
