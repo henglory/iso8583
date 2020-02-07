@@ -30,7 +30,7 @@ func unknownInnerEncoder(t reflect.Type) valueInnerEncoder {
 
 func initEncoder(v reflect.Value) ([]byte, error) {
 	var mti []byte
-	var secondBitmap bool
+	// var secondBitmap bool
 	mp := make(map[int]([]byte))
 	for i := 0; i < v.Type().NumField(); i++ {
 		f := v.Type().Field(i)
@@ -45,13 +45,13 @@ func initEncoder(v reflect.Value) ([]byte, error) {
 			}
 			continue
 		}
-		if t.isSecondBitmap {
-			secondBitmap, err = encodeSecondBitmap(v.Field(i))
-			if err != nil {
-				return nil, err
-			}
-			continue
-		}
+		// if t.isSecondBitmap {
+		// 	secondBitmap, err = encodeSecondBitmap(v.Field(i))
+		// 	if err != nil {
+		// 		return nil, err
+		// 	}
+		// 	continue
+		// }
 		b, err := primaryEncoder(f.Type, t)(v.Field(i), t)
 		if err != nil {
 			return nil, err
@@ -63,35 +63,83 @@ func initEncoder(v reflect.Value) ([]byte, error) {
 		return nil, fmt.Errorf("Require MTI field")
 	}
 
-	return aggregateVal(mp, mti, secondBitmap)
+	return aggregateVal(mp, mti)
 }
 
-func aggregateVal(mp map[int]([]byte), mti []byte, secondBitmap bool) ([]byte, error) {
+// func aggregateVal(mp map[int]([]byte), mti []byte, secondBitmap bool) ([]byte, error) {
+// 	var ret []byte
+// 	ret = append(ret, mti...)
+// 	byteNum := 8
+// 	if secondBitmap {
+// 		byteNum = 16
+// 	}
+// 	bitmap := make([]byte, byteNum)
+// 	var data []byte
+// 	for byteIdx := 0; byteIdx < byteNum; byteIdx++ {
+// 		for bitIdx := 0; bitIdx < 8; bitIdx++ {
+// 			i := byteIdx*8 + bitIdx + 1
+// 			// if we need second bitmap (additional 8 bytes) - set first bit in first bitmap
+// 			// secondary bit map is the first val
+// 			if secondBitmap && i == 1 {
+// 				step := uint(7 - bitIdx)
+// 				bitmap[byteIdx] |= (0x01 << step)
+// 			}
+// 			if b, ok := mp[i]; ok && len(b) > 0 {
+// 				// mark 1 in bitmap:
+// 				step := uint(7 - bitIdx)
+// 				bitmap[byteIdx] |= (0x01 << step)
+// 				data = append(data, b...)
+// 			}
+// 		}
+// 	}
+// 	ret = append(ret, bitmap...)
+// 	ret = append(ret, data...)
+// 	return ret, nil
+// }
+
+func aggregateVal(mp map[int]([]byte), mti []byte) ([]byte, error) {
 	var ret []byte
 	ret = append(ret, mti...)
-	byteNum := 8
-	if secondBitmap {
-		byteNum = 16
-	}
-	bitmap := make([]byte, byteNum)
+	//assume has only primary bitmap
+	bitmap := make([]byte, 8)
 	var data []byte
-	for byteIdx := 0; byteIdx < byteNum; byteIdx++ {
-		for bitIdx := 0; bitIdx < 8; bitIdx++ {
-			i := byteIdx*8 + bitIdx + 1
-			// if we need second bitmap (additional 8 bytes) - set first bit in first bitmap
-			// secondary bit map is the first val
-			if secondBitmap && i == 1 {
-				step := uint(7 - bitIdx)
-				bitmap[byteIdx] |= (0x01 << step)
-			}
-			if b, ok := mp[i]; ok && len(b) > 0 {
-				// mark 1 in bitmap:
-				step := uint(7 - bitIdx)
-				bitmap[byteIdx] |= (0x01 << step)
-				data = append(data, b...)
-			}
+	var hasSecondBitmap = false
+	for idx, m := range mp {
+		if len(m) <= 0 {
+			continue
 		}
+		if idx <= 0 || idx > 128 {
+			return nil, fmt.Errorf("Data DE is less than 0 or more than 128")
+		}
+		if idx > 64 && !hasSecondBitmap {
+			//add second bitmap
+			bitmap = append(bitmap, make([]byte, 8)...)
+			bitmap[0] |= (0x80)
+			hasSecondBitmap = true
+		}
+		byteIdx := idx / 8
+		bitIdx := (idx - 1) % 8
+		step := uint(7 - bitIdx)
+		bitmap[byteIdx] |= (0x01 << step)
 	}
+
+	// for byteIdx := 0; byteIdx < byteNum; byteIdx++ {
+	// 	for bitIdx := 0; bitIdx < 8; bitIdx++ {
+	// 		i := byteIdx*8 + bitIdx + 1
+	// 		// if we need second bitmap (additional 8 bytes) - set first bit in first bitmap
+	// 		// secondary bit map is the first val
+	// 		if secondBitmap && i == 1 {
+	// 			step := uint(7 - bitIdx)
+	// 			bitmap[byteIdx] |= (0x01 << step)
+	// 		}
+	// 		if b, ok := mp[i]; ok && len(b) > 0 {
+	// 			// mark 1 in bitmap:
+	// 			step := uint(7 - bitIdx)
+	// 			bitmap[byteIdx] |= (0x01 << step)
+	// 			data = append(data, b...)
+	// 		}
+	// 	}
+	// }
 	ret = append(ret, bitmap...)
 	ret = append(ret, data...)
 	return ret, nil
