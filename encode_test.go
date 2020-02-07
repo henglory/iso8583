@@ -12,35 +12,32 @@ type T48 struct {
 }
 
 type TestIso struct {
-	Mti          string `encode:"bcd"`
-	SecondBitmap bool
-	TransmissDt  string `field:"7" length:"10" type:"numeric"`
-	TraceNum     string `field:"11" length:"6" type:"numeric"`
-	SendingID    string `field:"32" type:"llvar"`
-	Rrn          string `field:"37" length:"12" type:"numeric"`
-	T            T48    `field:"48" type:"llvar" encode:"bcd,ascii"`
-	NetworkCode  string `field:"70" length:"3" type:"numeric"`
+	Mti         string `encode:"bcd"`
+	TransmissDt string `field:"7" length:"10" type:"numeric"`
+	TraceNum    string `field:"11" length:"6" type:"numeric"`
+	SendingID   string `field:"32" type:"llvar"`
+	Rrn         string `field:"37" length:"12" type:"numeric"`
+	T           T48    `field:"48" type:"llvar" encode:"bcd,ascii"`
+	NetworkCode string `field:"70" length:"3" type:"numeric"`
 }
 
 type TestBitmapIso struct {
-	Mti          string `encode:"bcd"`
-	SecondBitmap bool
-	TransmissDt  string `field:"7" length:"10" type:"numeric"`
-	TraceNum     string `field:"11" length:"6" type:"numeric"`
-	SendingID    string `field:"32" type:"llvar"`
-	Rrn          string `field:"37" length:"12" type:"numeric"`
-	T            T48    `field:"48" type:"llvar" encode:"bcd,ascii" bitmapsize:"8"`
-	NetworkCode  string `field:"70" length:"3" type:"numeric"`
+	Mti         string `encode:"bcd"`
+	TransmissDt string `field:"7" length:"10" type:"numeric"`
+	TraceNum    string `field:"11" length:"6" type:"numeric"`
+	SendingID   string `field:"32" type:"llvar"`
+	Rrn         string `field:"37" length:"12" type:"numeric"`
+	T           T48    `field:"48" type:"llvar" encode:"bcd,ascii" bitmapsize:"8"`
+	NetworkCode string `field:"70" length:"3" type:"numeric"`
 }
 
 func TestEncode(t *testing.T) {
 
 	init := TestIso{
-		Mti:          "0800",
-		SecondBitmap: false,
-		TransmissDt:  "123123",
-		TraceNum:     "123456",
-		SendingID:    "004",
+		Mti:         "0800",
+		TransmissDt: "123123",
+		TraceNum:    "123456",
+		SendingID:   "004",
 		T: T48{
 			T1: "ทดสอบทดสอบ",
 			T2: "123",
@@ -61,11 +58,10 @@ func TestEncode(t *testing.T) {
 func TestBitmapEncode(t *testing.T) {
 
 	init := TestBitmapIso{
-		Mti:          "0800",
-		SecondBitmap: true,
-		TransmissDt:  "123123",
-		TraceNum:     "123456",
-		SendingID:    "004",
+		Mti:         "0800",
+		TransmissDt: "123123",
+		TraceNum:    "123456",
+		SendingID:   "004",
 		T: T48{
 			T1: "ทดสอบทดสอบ",
 			T2: "",

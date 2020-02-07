@@ -91,9 +91,9 @@ func encodeMti(v reflect.Value, t tag) ([]byte, error) {
 	}
 }
 
-func encodeSecondBitmap(v reflect.Value) (bool, error) {
-	if v.Type().Kind() != reflect.Bool {
-		return false, fmt.Errorf("Second Bitmap sholud be boolean")
-	}
-	return v.Bool(), nil
-}
+// func encodeSecondBitmap(v reflect.Value) (bool, error) {
+// 	if v.Type().Kind() != reflect.Bool {
+// 		return false, fmt.Errorf("Second Bitmap sholud be boolean")
+// 	}
+// 	return v.Bool(), nil
+// }

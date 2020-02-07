@@ -36,15 +36,14 @@ const (
 )
 
 type tag struct {
-	isMti          bool
-	isSecondBitmap bool
-	field          int
-	length         int
-	lenEncode      encodeBase
-	encode         encodeBase
-	fieldType      iso8583FieldType
-	codePage       codepageType
-	bitmapSize     int
+	isMti      bool
+	field      int
+	length     int
+	lenEncode  encodeBase
+	encode     encodeBase
+	fieldType  iso8583FieldType
+	codePage   codepageType
+	bitmapSize int
 }
 
 type innerTag struct {
@@ -57,10 +56,6 @@ func parseTag(f reflect.StructField) (t tag, err error) {
 	if strings.ToLower(f.Name) == "mti" {
 		t.isMti = true
 		t.encode = parseEncode(f.Tag.Get("encode"))
-		return
-	}
-	if strings.ToLower(f.Name) == "secondbitmap" {
-		t.isSecondBitmap = true
 		return
 	}
 	if t.field, err = strconv.Atoi(f.Tag.Get("field")); err != nil {

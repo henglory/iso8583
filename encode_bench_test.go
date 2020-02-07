@@ -8,11 +8,10 @@ import (
 func BenchmarkMarshal(b *testing.B) {
 
 	init := TestIso{
-		Mti:          "0800",
-		SecondBitmap: false,
-		TransmissDt:  "123123",
-		TraceNum:     "123456",
-		SendingID:    "004",
+		Mti:         "0800",
+		TransmissDt: "123123",
+		TraceNum:    "123456",
+		SendingID:   "004",
 		T: T48{
 			T1: "ทดสอบทดสอบจ้า",
 			T2: "123",
@@ -34,11 +33,10 @@ func BenchmarkMarshal(b *testing.B) {
 func BenchmarkInitEncode(b *testing.B) {
 
 	init := TestIso{
-		Mti:          "0800",
-		SecondBitmap: false,
-		TransmissDt:  "123123",
-		TraceNum:     "123456",
-		SendingID:    "004",
+		Mti:         "0800",
+		TransmissDt: "123123",
+		TraceNum:    "123456",
+		SendingID:   "004",
 		T: T48{
 			T1: "ทดสอบทดสอบจ้า",
 			T2: "123",

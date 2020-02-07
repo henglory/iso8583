@@ -21,10 +21,7 @@ func initDecoder(v reflect.Value, raw []byte) error {
 		}
 		if t.isMti {
 			mtiDecoder = getMtiDecoder(v.Field(i), t)
-			continue
-		}
-		if t.isSecondBitmap {
-			bitmapDecoder = getBitmapDecoder(v.Field(i))
+			bitmapDecoder = getBitmapDecoder()
 			continue
 		}
 		pipeline = append(pipeline, getValueDecoder(v.Field(i), t))
@@ -74,23 +71,17 @@ func getMtiDecoder(v reflect.Value, t tag) decoderFn {
 	}
 }
 
-func getBitmapDecoder(v reflect.Value) decoderFn {
+func getBitmapDecoder() decoderFn {
 	return func(bm, data []byte) (leftByte []byte, bitmap []byte, err error) {
 		defer func() {
 			if r := recover(); r != nil {
 				err = fmt.Errorf("Bitmap decoder critical error %s", hex.EncodeToString(data))
 			}
 		}()
-		if v.Type().Kind() != reflect.Bool {
-			err = fmt.Errorf("Second bitmap flag should be boolean")
-		}
 
 		byteNum := 8
 		if data[0]&0x80 == 0x80 {
-			v.SetBool(true)
 			byteNum = 16
-		} else {
-			v.SetBool(false)
 		}
 		bitmap = data[:byteNum]
 		leftByte = data[byteNum:]
