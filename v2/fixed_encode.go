@@ -8,8 +8,9 @@ import (
 )
 
 type fixedwidthEncoder struct {
-	typ reflect.Type
-	tg  fixedwidthTag
+	typ         reflect.Type
+	tg          fixedwidthTag
+	usingBitmap bool
 }
 
 type fixedwidthEncoderFunc func(v reflect.Value) ([]byte, error)
@@ -45,14 +46,14 @@ func (f fixedwidthEncoder) ptrEncodeFunc(v reflect.Value) ([]byte, error) {
 }
 
 func (f fixedwidthEncoder) stringEncodeFunc(v reflect.Value) ([]byte, error) {
-	if v.String() == "" {
+	if v.String() == "" && f.usingBitmap {
 		return []byte{}, nil
 	}
 	return f.parseStringValue([]byte(v.String()))
 }
 
 func (f fixedwidthEncoder) intEncodeFunc(v reflect.Value) ([]byte, error) {
-	if v.Int() == 0 {
+	if v.Int() == 0 && f.usingBitmap {
 		return []byte{}, nil
 	}
 	return f.parseNumericValue([]byte(strconv.Itoa(int(v.Int()))))
@@ -60,7 +61,7 @@ func (f fixedwidthEncoder) intEncodeFunc(v reflect.Value) ([]byte, error) {
 
 func (f fixedwidthEncoder) getFloatEncoder(perc, bitsize int) fixedwidthEncoderFunc {
 	return func(v reflect.Value) ([]byte, error) {
-		if v.Float() == 0 {
+		if v.Float() == 0 && f.usingBitmap {
 			return []byte{}, nil
 		}
 		return f.parseNumericValue([]byte(strconv.FormatFloat(v.Float(), 'f', perc, bitsize)))
@@ -93,10 +94,11 @@ func (f fixedwidthEncoder) parseStringValue(b []byte) ([]byte, error) {
 	return b, nil
 }
 
-func getFixedwidthEncoder(typ reflect.Type, tg fixedwidthTag) fixedwidthEncoderFunc {
+func getFixedwidthEncoder(typ reflect.Type, tg fixedwidthTag, usingBitmap bool) fixedwidthEncoderFunc {
 	fEnc := fixedwidthEncoder{
-		typ: typ,
-		tg:  tg,
+		typ:         typ,
+		tg:          tg,
+		usingBitmap: usingBitmap,
 	}
 	if typ == nil {
 		return fEnc.nilFunc

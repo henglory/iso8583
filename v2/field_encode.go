@@ -94,7 +94,7 @@ func (f fieldEncoder) encodeFixedwidthWithTag(v reflect.Value, tag map[string]*f
 		if fixedTag == nil {
 			continue
 		}
-		b, err := getFixedwidthEncoder(subField.Type, *fixedTag)(v.Field(i))
+		b, err := getFixedwidthEncoder(subField.Type, *fixedTag, f.tg.bitmapSize > 0)(v.Field(i))
 		if err != nil {
 			return nil, err
 		}
