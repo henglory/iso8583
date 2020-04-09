@@ -127,6 +127,11 @@ func (f *fieldDecoder) lllvarDecode(data []byte) (leftByte []byte, err error) {
 
 //////////////////////////////////////////////////////////////
 func (f *fieldDecoder) loadPointer(val []byte) (err error) {
+
+	typ := f.v.Type().Elem()
+	if f.v.IsNil() {
+		f.v.Set(reflect.New(typ))
+	}
 	for f.v.Kind() == reflect.Ptr {
 		f.v = reflect.Indirect(f.v)
 	}

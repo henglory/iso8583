@@ -13,9 +13,14 @@ type fixedwidthDecoder struct {
 }
 
 func (f *fixedwidthDecoder) ptrDecodeFunc(data []byte) error {
+	typ := f.v.Type().Elem()
+	if f.v.IsNil() {
+		f.v.Set(reflect.New(typ))
+	}
 	for f.v.Kind() == reflect.Ptr {
 		f.v = reflect.Indirect(f.v)
 	}
+
 	switch f.v.Kind() {
 	case reflect.String:
 		return f.stringDecodeFunc(data)

@@ -17,6 +17,27 @@ type test2 struct {
 	T3  string `field:"6" length:"10" encode:"ascii" type:"numeric"`
 }
 
+type test3 struct {
+	Mti string
+	T1  string  `field:"4" encode:"ascii" type:"llvar"`
+	T2  *string `field:"5" encode:"lbcd," type:"lllvar"`
+	T3  string  `field:"6" length:"10" encode:"ascii" type:"numeric"`
+}
+
+func Test3(t *testing.T) {
+	t3 := test3{
+		Mti: "0200",
+		T1:  "test",
+		T3:  "123",
+	}
+	s := "test2"
+	t3.T2 = &s
+	_, err := Marshal(t3)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestMarshal(t *testing.T) {
 	s1 := test2{
 		Mti: "0200",
