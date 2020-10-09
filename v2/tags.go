@@ -32,6 +32,7 @@ const (
 	ascii encodeBase = iota + 1
 	bcd
 	rbcd
+	hexstring
 )
 
 const (
@@ -154,6 +155,8 @@ func parseEncode(s string) encodeBase {
 		return bcd
 	case "rbcd":
 		return rbcd
+	case "hexstring":
+		return hexstring
 	}
 	return ascii
 }
@@ -205,6 +208,8 @@ func (e encodeBase) value() string {
 		return "bcd"
 	case rbcd:
 		return "rbcd"
+	case hexstring:
+		return "hexstring"
 	default:
 		return ""
 	}

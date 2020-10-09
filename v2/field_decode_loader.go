@@ -51,8 +51,11 @@ func (f *fieldDecoder) binaryDecode(data []byte) (leftByte []byte, err error) {
 }
 
 func (f *fieldDecoder) llvarDecode(data []byte) (leftByte []byte, err error) {
+	var (
+		contentLen int
+		newHexData []byte
+	)
 
-	var contentLen int
 	switch f.tg.lenEncode {
 	case ascii:
 		if len(data) < 2 {
@@ -78,19 +81,39 @@ func (f *fieldDecoder) llvarDecode(data []byte) (leftByte []byte, err error) {
 			err = fmt.Errorf("Parsing length bcd failed: %s", hex.EncodeToString(data))
 			return
 		}
+	case hexstring:
+		if len(data) < 2 {
+			err = fmt.Errorf("llvar hexstring data length is too small")
+			return
+		}
+		contentLen, err = strconv.Atoi(string(data[:2]))
+		data = data[2:]
+		hx := hex.EncodeToString(data[:contentLen])
+		newHexData = []byte(hx)
+		if err != nil {
+			err = fmt.Errorf("parsing length hexstring failed: %s", hex.EncodeToString(data))
+			return
+		}
 	default:
 		err = fmt.Errorf("llvar, length encoder is invalid")
 		return
 	}
 	val := data[:contentLen]
+	if len(newHexData) != 0 {
+		val = newHexData
+	}
 	leftByte = data[contentLen:]
 	err = f.loadValue(val)
 	return
 }
 
 func (f *fieldDecoder) lllvarDecode(data []byte) (leftByte []byte, err error) {
-	var contentLen int
-	switch f.tg.lenEncode {
+	var (
+		contentLen int
+		newHexData []byte
+	)
+
+	switch f.tg.valEncode {
 	case ascii:
 		if len(data) < 3 {
 			err = fmt.Errorf("lllvar ascii data length is too small")
@@ -115,11 +138,27 @@ func (f *fieldDecoder) lllvarDecode(data []byte) (leftByte []byte, err error) {
 			err = fmt.Errorf("Parsing length bcd failed: %s", hex.EncodeToString(data))
 			return
 		}
+	case hexstring:
+		if len(data) < 3 {
+			err = fmt.Errorf("lllvar hexstring data length is too small")
+			return
+		}
+		contentLen, err = strconv.Atoi(string(data[:3]))
+		data = data[3:]
+		hx := hex.EncodeToString(data[:contentLen])
+		newHexData = []byte(hx)
+		if err != nil {
+			err = fmt.Errorf("parsing length hexstring failed: %s", hex.EncodeToString(data))
+			return
+		}
 	default:
 		err = fmt.Errorf("lllvar, length encoder is invalid")
 		return
 	}
 	val := data[:contentLen]
+	if len(newHexData) != 0 {
+		val = newHexData
+	}
 	leftByte = data[contentLen:]
 	err = f.loadValue(val)
 	return

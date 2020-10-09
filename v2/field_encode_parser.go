@@ -27,6 +27,8 @@ func (f fieldEncoder) numericParse(b []byte) ([]byte, error) {
 		return rbcdEncode(b)
 	case ascii:
 		return b, nil
+	case hexstring:
+		return b, nil
 	//default will be ascii
 	default:
 		return b, nil
@@ -91,6 +93,11 @@ func (f fieldEncoder) llvarParse(b []byte) ([]byte, error) {
 		if len(lenVal) > 1 || len(contentLen) > 3 {
 			return nil, fmt.Errorf("llvar field:%s bcd length value is invalid(%d) content length(%d)", f.tg.name, len(lenVal), len(contentLen))
 		}
+	case hexstring:
+		lenVal = contentLen
+		if len(lenVal) > 2 {
+			return nil, fmt.Errorf("llvar field:%s hexstring length value is invalid(%d)", f.tg.name, len(lenVal))
+		}
 	default:
 		return nil, fmt.Errorf("llvar field:%s length encode is not valid %s", f.tg.name, f.tg.lenEncode.value())
 	}
@@ -125,6 +132,11 @@ func (f fieldEncoder) lllvarParse(b []byte) ([]byte, error) {
 		}
 		if len(lenVal) > 2 || len(contentLen) > 3 {
 			return nil, fmt.Errorf("lllvar field:%s bcd length value is invalid(%d) content length(%d)", f.tg.name, len(lenVal), len(contentLen))
+		}
+	case hexstring:
+		lenVal = contentLen
+		if len(lenVal) > 3 {
+			return nil, fmt.Errorf("lllvar field:%s hexstring length value is invalid(%d)", f.tg.name, len(lenVal))
 		}
 	default:
 		return nil, fmt.Errorf("lllvar field:%s length encode is not valid %s", f.tg.name, f.tg.lenEncode.value())
