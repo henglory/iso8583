@@ -1,7 +1,6 @@
 package iso8583v2
 
 import (
-	"encoding/hex"
 	"fmt"
 	"strings"
 )
@@ -27,8 +26,6 @@ func (f fieldEncoder) numericParse(b []byte) ([]byte, error) {
 	case rbcd:
 		return rbcdEncode(b)
 	case ascii:
-		return b, nil
-	case hexstring:
 		return b, nil
 	//default will be ascii
 	default:
@@ -72,12 +69,12 @@ func (f fieldEncoder) llvarParse(b []byte) ([]byte, error) {
 	if f.tg.length != -1 && len(b) > f.tg.length {
 		return nil, fmt.Errorf("llvar field:%s length is defined but value(%d) is larger than defined(%d)", f.tg.name, len(b), f.tg.length)
 	}
-	if f.tg.valEncode != ascii && f.tg.valEncode != hexstring {
-		return nil, fmt.Errorf("llvar field:%s value encode must be ascii or hexstring", f.tg.name)
+	if f.tg.valEncode != ascii {
+		return nil, fmt.Errorf("llvar field:%s value encode must be ascii", f.tg.name)
 	}
 	contentLen := []byte(fmt.Sprintf("%02d", len(b)))
 	var lenVal []byte
-	switch f.tg.valEncode {
+	switch f.tg.lenEncode {
 	case ascii:
 		lenVal = contentLen
 		if len(lenVal) > 2 {
@@ -94,17 +91,6 @@ func (f fieldEncoder) llvarParse(b []byte) ([]byte, error) {
 		if len(lenVal) > 1 || len(contentLen) > 3 {
 			return nil, fmt.Errorf("llvar field:%s bcd length value is invalid(%d) content length(%d)", f.tg.name, len(lenVal), len(contentLen))
 		}
-	case hexstring:
-		hxByte, err := hex.DecodeString(strings.ToLower(string(b)))
-		if err != nil {
-			return nil, fmt.Errorf("llvar field:%s failed DecodeString from hex string to byte array err:%s", f.tg.name, err.Error())
-		}
-		b = hxByte
-		contentLen = []byte(fmt.Sprintf("%02d", len(b)))
-		lenVal = contentLen
-		if len(lenVal) > 2 {
-			return nil, fmt.Errorf("llvar field:%s hexstring length value is invalid(%d)", f.tg.name, len(lenVal))
-		}
 	default:
 		return nil, fmt.Errorf("llvar field:%s length encode is not valid %s", f.tg.name, f.tg.lenEncode.value())
 	}
@@ -118,12 +104,12 @@ func (f fieldEncoder) lllvarParse(b []byte) ([]byte, error) {
 	if f.tg.length != -1 && len(b) > f.tg.length {
 		return nil, fmt.Errorf("lllvar field:%s length is defined but value(%d) is larger than defined(%d)", f.tg.name, len(b), f.tg.length)
 	}
-	if f.tg.valEncode != ascii && f.tg.valEncode != hexstring {
-		return nil, fmt.Errorf("lllvar field:%s value encode must be ascii or hexstring", f.tg.name)
+	if f.tg.valEncode != ascii {
+		return nil, fmt.Errorf("lllvar field:%s value encode must be ascii", f.tg.name)
 	}
 	contentLen := []byte(fmt.Sprintf("%03d", len(b)))
 	var lenVal []byte
-	switch f.tg.valEncode {
+	switch f.tg.lenEncode {
 	case ascii:
 		lenVal = contentLen
 		if len(lenVal) > 3 {
@@ -140,20 +126,8 @@ func (f fieldEncoder) lllvarParse(b []byte) ([]byte, error) {
 		if len(lenVal) > 2 || len(contentLen) > 3 {
 			return nil, fmt.Errorf("lllvar field:%s bcd length value is invalid(%d) content length(%d)", f.tg.name, len(lenVal), len(contentLen))
 		}
-	case hexstring:
-		hxByte, err := hex.DecodeString(strings.ToLower(string(b)))
-		if err != nil {
-			return nil, fmt.Errorf("lllvar field:%s failed DecodeString from hex string to byte array err:%s", f.tg.name, err.Error())
-		}
-		b = hxByte
-		contentLen = []byte(fmt.Sprintf("%03d", len(b)))
-		lenVal = contentLen
-		if len(lenVal) > 3 {
-			return nil, fmt.Errorf("lllvar field:%s hexstring length value is invalid(%d)", f.tg.name, len(lenVal))
-		}
 	default:
 		return nil, fmt.Errorf("lllvar field:%s length encode is not valid %s", f.tg.name, f.tg.lenEncode.value())
 	}
-
 	return append(lenVal, b...), nil
 }

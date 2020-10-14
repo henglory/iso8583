@@ -51,8 +51,6 @@ func (f *fieldDecoder) getValueEncoderFn() func(data []byte) ([]byte, []byte, er
 		return f.rbcdDecode
 	case ascii:
 		return f.asciiDecode
-	case hexstring:
-		return f.hexstringDecode
 	default:
 		return f.unknownDecode
 	}
@@ -77,13 +75,6 @@ func (f *fieldDecoder) rbcdDecode(data []byte) ([]byte, []byte, error) {
 func (f *fieldDecoder) asciiDecode(data []byte) ([]byte, []byte, error) {
 	if len(data) < f.tg.length {
 		return nil, nil, fmt.Errorf("field:%s ascii decode length data is smaller than expected", f.tg.name)
-	}
-	return data[:f.tg.length], data[f.tg.length:], nil
-}
-
-func (f *fieldDecoder) hexstringDecode(data []byte) ([]byte, []byte, error) {
-	if len(data) < f.tg.length {
-		return nil, nil, fmt.Errorf("field:%s hexstring decode length data is smaller than expected", f.tg.name)
 	}
 	return data[:f.tg.length], data[f.tg.length:], nil
 }
@@ -134,12 +125,6 @@ func (m *mtiDecoder) decode(data []byte) ([]byte, error) {
 		}
 		m.v.SetString(string(bcd2Ascii(data[:2])))
 		return data[2:], nil
-	case hexstring:
-		if len(data) < 4 {
-			return nil, fmt.Errorf("decode hexstring failed: mti data length too small (%d)", len(data))
-		}
-		m.v.SetString(string(data[:4]))
-		return data[4:], nil
 	}
 	return nil, fmt.Errorf("decode failed: mti field encode value not supported, %s", m.tg.valEncode.value())
 }

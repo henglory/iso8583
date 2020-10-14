@@ -22,6 +22,7 @@ func Unmarshal(data []byte, v interface{}) error {
 		tagValue.Store(tag)
 		tagCache[structKey] = tagValue
 	}
+
 	return decodeIso8583wthTag(data, rv, tag)
 }
 
@@ -45,7 +46,6 @@ func decodeIso8583wthTag(data []byte, v reflect.Value, tag map[string]*iso8583Ta
 			v:  v.Field(i),
 			tg: *isoTag,
 		})
-
 	}
 	return d.execute(data)
 }
