@@ -46,7 +46,7 @@ const (
 	defaultCp codepageType = iota + 1
 	windows874
 	tis620
-	hexstr
+	hexstring
 )
 
 type iso8583Tag struct {
@@ -183,16 +183,16 @@ func parseCodepage(s string) (codepageType, error) {
 		return tis620, nil
 	case "windows-874":
 		return windows874, nil
-	case "hexstr":
-		return hexstr, nil
+	case "hexstring":
+		return hexstring, nil
 	}
 	return -1, fmt.Errorf("Unsupport codepage %s", s)
 }
 
 func (c codepageType) value() string {
 	switch c {
-	case hexstr:
-		return "hexstr"
+	case hexstring:
+		return "hexstring"
 	case tis620:
 		return "TIS-620"
 	case windows874:

@@ -31,7 +31,7 @@ func encodeUtf8(encodeTable map[string]byte, utf []byte) []byte {
 
 //DecodeUTF8 is converting byte with codepage to byte in utf8
 func decodeUTF8(codePage string, b []byte) []byte {
-	if codePage == "hexstr" {
+	if codePage == "hexstring" {
 		return []byte(hex.EncodeToString(b))
 	}
 	return defaultDecodeUtf8(codePage, b)
@@ -39,7 +39,7 @@ func decodeUTF8(codePage string, b []byte) []byte {
 
 //EncodeUTF8 is converting byte in utf8 to byte in codepage
 func encodeUTF8(codePage string, b []byte) []byte {
-	if codePage == "hexstr" {
+	if codePage == "hexstring" {
 		hb, err := hex.DecodeString(string(b))
 		if err != nil {
 			return b

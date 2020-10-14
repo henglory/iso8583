@@ -7,7 +7,7 @@ import (
 
 type hexTestStruct struct {
 	Mti string
-	Emv string `field:"2" type:"lllvar" cp:"hexstr"`
+	Emv string `field:"2" type:"lllvar" cp:"hexstring"`
 }
 
 func TestCompareBeforeAndAfter(t *testing.T) {
