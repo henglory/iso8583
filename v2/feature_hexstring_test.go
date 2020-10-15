@@ -1,4 +1,4 @@
-package v2
+package iso8583v2
 
 import (
 	"fmt"

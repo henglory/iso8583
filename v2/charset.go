@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"golang.org/x/net/html/charset"
 	"golang.org/x/text/transform"
@@ -32,7 +33,7 @@ func encodeUtf8(encodeTable map[string]byte, utf []byte) []byte {
 //DecodeUTF8 is converting byte with codepage to byte in utf8
 func decodeUTF8(codePage string, b []byte) []byte {
 	if codePage == "hexstring" {
-		return []byte(hex.EncodeToString(b))
+		return []byte(strings.ToUpper(hex.EncodeToString(b)))
 	}
 	return defaultDecodeUtf8(codePage, b)
 }
