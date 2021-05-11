@@ -1,10 +1,16 @@
 package iso8583v2
 
-import "sync/atomic"
+import (
+	"sync"
+	"sync/atomic"
+)
 
 var (
 	tagCache      map[string]atomic.Value
 	fixedTagCache map[string]atomic.Value
+
+	tagLock      sync.RWMutex
+	fixedTagLock sync.RWMutex
 )
 
 func init() {

@@ -140,13 +140,17 @@ func (f *fieldDecoder) loadPointer(val []byte) (err error) {
 
 func (f *fieldDecoder) loadStruct(val []byte) (err error) {
 	structKey := f.v.Type().PkgPath() + f.v.Type().Name()
+	fixedTagLock.RLock()
 	mpTag := fixedTagCache[structKey]
+	fixedTagLock.RUnlock()
 	tag, ok := mpTag.Load().(map[string]*fixedwidthTag)
 	if !ok {
 		var tagValue atomic.Value
 		tag = loadFixedwidthTag(f.v)
 		tagValue.Store(tag)
-		tagCache[structKey] = tagValue
+		fixedTagLock.Lock()
+		fixedTagCache[structKey] = tagValue
+		fixedTagLock.Unlock()
 	}
 	err = f.loadStructSubFieldWithTag(val, tag)
 	return

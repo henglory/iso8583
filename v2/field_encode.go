@@ -67,13 +67,17 @@ func (f fieldEncoder) ptrEncodeFunc(v reflect.Value) ([]byte, error) {
 
 func (f fieldEncoder) structEncodeFunc(v reflect.Value) ([]byte, error) {
 	structKey := v.Type().PkgPath() + v.Type().Name()
+	fixedTagLock.RLock()
 	mpTag := fixedTagCache[structKey]
+	fixedTagLock.RUnlock()
 	tag, ok := mpTag.Load().(map[string]*fixedwidthTag)
 	if !ok {
 		var tagValue atomic.Value
 		tag = loadFixedwidthTag(v)
 		tagValue.Store(tag)
-		tagCache[structKey] = tagValue
+		fixedTagLock.Lock()
+		fixedTagCache[structKey] = tagValue
+		fixedTagLock.Unlock()
 	}
 
 	structByte, err := f.encodeFixedwidthWithTag(v, tag)

@@ -14,13 +14,17 @@ func Unmarshal(data []byte, v interface{}) error {
 
 	//lookup for tag in cache
 	structKey := rv.Type().PkgPath() + rv.Type().Name()
+	tagLock.RLock()
 	mpTag := tagCache[structKey]
+	tagLock.RUnlock()
 	tag, ok := mpTag.Load().(map[string]*iso8583Tag)
 	if !ok {
 		var tagValue atomic.Value
 		tag = loadTag(rv)
 		tagValue.Store(tag)
+		tagLock.Lock()
 		tagCache[structKey] = tagValue
+		tagLock.Unlock()
 	}
 
 	return decodeIso8583wthTag(data, rv, tag)

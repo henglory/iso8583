@@ -16,13 +16,17 @@ func Marshal(v interface{}) ([]byte, error) {
 	}
 	//lookup for tag in cache
 	structKey := val.Type().PkgPath() + val.Type().Name()
+	tagLock.RLock()
 	mpTag := tagCache[structKey]
+	tagLock.RUnlock()
 	tag, ok := mpTag.Load().(map[string]*iso8583Tag)
 	if !ok {
 		var tagValue atomic.Value
 		tag = loadTag(val)
 		tagValue.Store(tag)
+		tagLock.Lock()
 		tagCache[structKey] = tagValue
+		tagLock.Unlock()
 	}
 	//////////////////////////
 	return encodeIso8583wthTag(val, tag)
